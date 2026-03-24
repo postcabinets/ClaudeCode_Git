@@ -1,14 +1,19 @@
 {
   "name": "copain-claude-workspace",
   "private": true,
-  "description": "COPAIN AI — Notion ハブ & Claude Code 用スクリプト（依存パッケージなし）",
+  "description": "COPAIN AI — Notion ハブ & Claude Code 用スクリプト",
   "scripts": {
     "notion:verify": "node scripts/notion-verify.mjs",
     "notion:hub": "node scripts/notion-hub-create.mjs",
     "notion:seed": "node scripts/notion-seed.mjs",
     "pulse:discord": "node scripts/notion-pulse.mjs",
     "discord:test": "node scripts/discord-webhook-test.mjs",
-    "bootstrap": "npm run notion:verify && npm run notion:hub && npm run notion:seed && npm run discord:test"
+    "bootstrap": "npm run notion:verify && npm run notion:hub && npm run notion:seed && npm run discord:test",
+    "browser:install": "playwright install chromium",
+    "browser:daemon": "node scripts/browser-daemon.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.51.0"
   },
   "engines": {
     "node": ">=20"

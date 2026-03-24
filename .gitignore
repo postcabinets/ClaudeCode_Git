@@ -8,3 +8,5 @@ node_modules/
 # 権限リストにローカル秘密が含まれる場合がある
 .claude/settings.local.json
 .DS_Store
+playwright-report/
+test-results/

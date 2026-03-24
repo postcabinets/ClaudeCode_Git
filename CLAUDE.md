@@ -52,6 +52,16 @@
 
 定期トリガー: `scripts/launchd/com.copain.notion-pulse.plist.example` をコピーし、パスを自分の環境に合わせて `launchctl load` する。
 
+## バックグラウンド・ブラウザ（Playwright / Chromium）
+
+目的: **画面を出さず**に Chromium を起動し、指定 URL を開いたまま常駐する（自動操作の土台）。
+
+1. 初回のみ: `npm install` → `npm run browser:install`（Chromium バイナリ取得）
+2. 設定: `browser/browser-runner.config.json` の `startUrl`（例: Notion / 管理画面）。`pingUrl` を空にすると定期再読込はしない。
+3. 起動: `npm run browser:daemon`（フォアグラウンド常駐。バックグラウンド運用は `nohup` または `scripts/launchd/com.copain.browser-daemon.plist.example`）
+
+注意: ヘッドレスでログインが必要なサイトは、**Cookie 永続化**や**別途ログイン手順**が要る場合があります。必要なら `scripts/browser-daemon.mjs` に `storageState` を足す拡張が次の一手。
+
 ## 次にやること（常にこの順で迷わない）
 
 1. **Notion**: 親ページを 1 つ作り、インテグレーションに共有する。`.env` に `NOTION_TOKEN` と `NOTION_PARENT_PAGE_ID` を設定する。

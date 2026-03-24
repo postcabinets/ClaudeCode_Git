@@ -1,0 +1,11 @@
+{
+  "$comment": "バックグラウンド・ブラウザデーモン用。startUrl は任意のページ。keepAlive でプロセス維持。",
+  "headless": true,
+  "startUrl": "https://www.notion.so",
+  "keepAlive": true,
+  "pingIntervalMs": 300000,
+  "pingUrl": "",
+  "viewport": { "width": 1280, "height": 720 },
+  "userAgent": "",
+  "slowMoMs": 0
+}

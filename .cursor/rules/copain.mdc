@@ -24,3 +24,5 @@ alwaysApply: true
 - `npm run notion:seed` — 初期行投入
 - `npm run pulse:discord` — Active Projects を Discord に投稿
 - `npm run discord:test` — Webhook テスト
+- `npm run browser:install` — Playwright の Chromium を取得
+- `npm run browser:daemon` — `browser/browser-runner.config.json` に従いヘッドレス Chromium を常駐
