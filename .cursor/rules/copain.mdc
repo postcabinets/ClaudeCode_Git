@@ -1,0 +1,26 @@
+---
+description: COPAIN AI — Notion をデータハブ、Discord を通知に使う
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# COPAIN ワークスペース
+
+- **正本**: 計画・決定・タスクは **Notion**（リポジトリのメモは補助）。更新は Notion を先に。
+- **ローカル参照**: ルートの `CLAUDE.md` と、存在すれば `.notion-hub.json`（DB ID。コミットしない）。
+- **秘密**: API キー・Notion token・Discord Webhook/Bot token は **`.env` のみ**。コードやチャットに貼らない。
+
+## 作業の流れ
+
+1. セッション開始: Notion の Projects / Weekly を確認するようユーザーに促すか、ユーザーが共有したリンクを優先する。
+2. 実装後: Notion への追記案を箇条書きで出す。
+3. 技術方針: 「LINE → バックエンド → モデル」のスパイクを優先。OpenClaw 全導入は並行検証。
+
+## npm スクリプト（ルート）
+
+- `npm run notion:verify` — Notion 疎通
+- `npm run notion:hub` — 親ページ下に DB 作成 + `.notion-hub.json`
+- `npm run notion:seed` — 初期行投入
+- `npm run pulse:discord` — Active Projects を Discord に投稿
+- `npm run discord:test` — Webhook テスト
