@@ -11,3 +11,9 @@ node_modules/
 .DS_Store
 playwright-report/
 test-results/
+
+# ローカル生成物
+logs/
+remote-app/icon-*.png
+remote-app/icon.svg
+remote-app/gen-icons.sh

@@ -12,7 +12,18 @@
     "discord:test": "node scripts/discord-webhook-test.mjs",
     "bootstrap": "npm run notion:verify && npm run notion:hub && npm run notion:seed && npm run discord:test",
     "browser:install": "playwright install chromium",
-    "browser:daemon": "node scripts/browser-daemon.mjs"
+    "browser:daemon": "node scripts/browser-daemon.mjs",
+    "weekly:review": "node scripts/weekly-review.mjs",
+    "loop:morning": "node scripts/autonomous-loop.mjs morning",
+    "loop:sync": "node scripts/autonomous-loop.mjs sync",
+    "loop:weekly": "node scripts/autonomous-loop.mjs weekly",
+    "line:start": "node line-bot/server.mjs",
+    "line:dev": "node --watch line-bot/server.mjs",
+    "ttyd:start": "bash scripts/start-ttyd.sh",
+    "ttyd:stop": "pkill -f ttyd",
+    "ttyd:status": "pgrep -fl ttyd && echo 'URL: http://'$(tailscale ip -4)':7681' || echo 'ttyd is not running'",
+    "remote:start": "node remote-app/server.mjs",
+    "remote:status": "echo 'Launcher: http://'$(tailscale ip -4)':7680' && echo 'Terminal: http://'$(tailscale ip -4)':7681'"
   },
   "dependencies": {
     "playwright": "^1.51.0"

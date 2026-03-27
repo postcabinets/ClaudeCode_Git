@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Claude">
+<meta name="theme-color" content="#1a1a2e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Claude Code Remote</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --accent: #e94560;
+    --accent2: #533483;
+    --text: #eee;
+    --text-dim: #888;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+  }
+
+  /* --- ランチャー画面 --- */
+  .launcher {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: 1.5rem;
+  }
+
+  .logo {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+    box-shadow: 0 8px 32px rgba(233,69,96,0.3);
+  }
+
+  h1 { font-size: 1.5rem; font-weight: 600; }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; }
+
+  .session-list {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { transform: scale(0.97); background: rgba(255,255,255,0.08); }
+  .btn .icon { font-size: 1.5rem; width: 2rem; text-align: center; }
+  .btn .label { flex: 1; }
+  .btn .label small { display: block; color: var(--text-dim); font-size: 0.75rem; margin-top: 2px; }
+  .btn .arrow { color: var(--text-dim); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    font-weight: 600;
+  }
+  .btn-primary:active { opacity: 0.85; }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--surface);
+    border-radius: 10px;
+    font-size: 0.8rem;
+    width: 100%;
+    max-width: 400px;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4caf50;
+    animation: pulse 2s infinite;
+  }
+  .status-dot.offline { background: #f44336; animation: none; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* --- ターミナル画面（ttyd iframe） --- */
+  .terminal-view {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    height: 100dvh;
+  }
+  .terminal-view.active { display: flex; }
+  .launcher.hidden { display: none; }
+
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    padding-top: calc(8px + var(--safe-top));
+    background: var(--surface);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    gap: 8px;
+    z-index: 10;
+  }
+  .terminal-header .back-btn {
+    background: none; border: none; color: var(--accent);
+    font-size: 1.2rem; cursor: pointer; padding: 4px 8px;
+  }
+  .terminal-header .title {
+    flex: 1; font-size: 0.85rem; font-weight: 500;
+  }
+
+  .terminal-frame {
+    flex: 1;
+    border: none;
+    width: 100%;
+    background: #000;
+  }
+
+  /* フルスクリーンモード */
+  .terminal-view.fullscreen .terminal-header { display: none; }
+  .terminal-view.fullscreen .terminal-frame { height: 100dvh; }
+</style>
+</head>
+<body>
+
+<!-- ランチャー画面 -->
+<div class="launcher" id="launcher">
+  <div class="logo">&#9678;</div>
+  <h1>Claude Code Remote</h1>
+  <p class="subtitle">POST CABINETS Dev Terminal</p>
+
+  <div class="status-bar" id="statusBar">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Checking connection...</span>
+  </div>
+
+  <div class="session-list">
+    <button class="btn btn-primary" onclick="openTerminal('resume')">
+      <span class="icon">&#9654;</span>
+      <span class="label">Resume Session<small>前回のセッションを続ける</small></span>
+      <span class="arrow">&#8250;</span>
+    </button>
+
+    <button class="btn" onclick="openTerminal('new')">
+      <span class="icon">&#10010;</span>
+      <span class="label">New Session<small>新しいClaude Codeを起動</small></span>
+      <span class="arrow">&#8250;</span>
+    </button>
+
+    <button class="btn" onclick="openTerminal('shell')">
+      <span class="icon">&#9000;</span>
+      <span class="label">Terminal Only<small>シェルだけ開く</small></span>
+      <span class="arrow">&#8250;</span>
+    </button>
+
+    <button class="btn" onclick="openTerminal('sessions')">
+      <span class="icon">&#9776;</span>
+      <span class="label">Session List<small>セッション一覧を見る</small></span>
+      <span class="arrow">&#8250;</span>
+    </button>
+  </div>
+</div>
+
+<!-- ターミナル画面 -->
+<div class="terminal-view" id="terminalView">
+  <div class="terminal-header">
+    <button class="back-btn" onclick="backToLauncher()">&#8249;</button>
+    <span class="title" id="terminalTitle">Terminal</span>
+    <button class="back-btn" onclick="toggleFullscreen()">&#9634;</button>
+  </div>
+  <iframe class="terminal-frame" id="terminalFrame" allow="clipboard-read; clipboard-write"></iframe>
+</div>
+
+<script>
+const TTYD_HOST = location.hostname;
+const TTYD_PORT = 7681;
+const CRED = 'claude:postcabinets2026';
+const TTYD_URL = `http://${CRED}@${TTYD_HOST}:${TTYD_PORT}`;
+
+// 接続チェック
+async function checkStatus() {
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  try {
+    const res = await fetch(`http://${TTYD_HOST}:${TTYD_PORT}/`, {
+      headers: { 'Authorization': 'Basic ' + btoa(CRED) },
+      mode: 'no-cors'
+    });
+    dot.classList.remove('offline');
+    text.textContent = `Connected to Mac (${TTYD_HOST})`;
+  } catch (e) {
+    dot.classList.add('offline');
+    text.textContent = 'Mac is offline or Tailscale is off';
+  }
+}
+
+function openTerminal(mode) {
+  const frame = document.getElementById('terminalFrame');
+  const title = document.getElementById('terminalTitle');
+
+  // ttydのURLにBasic認証を埋め込む
+  frame.src = TTYD_URL;
+
+  const titles = {
+    resume: 'Claude Code (Resume)',
+    new: 'Claude Code (New)',
+    shell: 'Terminal',
+    sessions: 'Session List'
+  };
+  title.textContent = titles[mode] || 'Terminal';
+
+  document.getElementById('launcher').classList.add('hidden');
+  document.getElementById('terminalView').classList.add('active');
+
+  // ttydが開いた後にコマンドを自動入力
+  // iframe内のttydは数秒後にWebSocket接続が確立される
+  // 自動コマンド送信はttyd APIを使う
+  setTimeout(() => {
+    sendCommand(mode);
+  }, 2000);
+}
+
+function sendCommand(mode) {
+  const commands = {
+    resume: 'claude --resume\n',
+    new: 'claude\n',
+    shell: '',
+    sessions: 'claude sessions list\n'
+  };
+
+  const cmd = commands[mode];
+  if (!cmd) return;
+
+  // ttydはWebSocket経由で入力を受け付ける
+  // iframe内なので直接は制御できないが、
+  // ttyd起動スクリプト側で対応する
+}
+
+function backToLauncher() {
+  document.getElementById('terminalFrame').src = 'about:blank';
+  document.getElementById('terminalView').classList.remove('active', 'fullscreen');
+  document.getElementById('launcher').classList.remove('hidden');
+}
+
+function toggleFullscreen() {
+  document.getElementById('terminalView').classList.toggle('fullscreen');
+}
+
+// 初期化
+checkStatus();
+setInterval(checkStatus, 30000);
+
+// PWAインストールプロンプト
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  deferredPrompt = e;
+});
+</script>
+</body>
+</html>
