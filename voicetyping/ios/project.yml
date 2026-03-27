@@ -1,0 +1,43 @@
+name: VoiceTyping
+options:
+  bundleIdPrefix: com.voicetyping
+  deploymentTarget:
+    iOS: "16.0"
+
+settings:
+  SWIFT_VERSION: "5.9"
+  DEVELOPMENT_TEAM: ""
+
+targets:
+  VoiceTyping:
+    type: application
+    platform: iOS
+    sources:
+      - VoiceTyping
+      - Shared
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.voicetyping.app
+      INFOPLIST_FILE: VoiceTyping/Info.plist
+    dependencies:
+      - target: VoiceTypingKeyboard
+
+  VoiceTypingKeyboard:
+    type: app-extension
+    platform: iOS
+    sources:
+      - VoiceTypingKeyboard
+      - Shared
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.voicetyping.app.keyboard
+      INFOPLIST_FILE: VoiceTypingKeyboard/Info.plist
+    entitlements:
+      path: VoiceTypingKeyboard/VoiceTypingKeyboard.entitlements
+
+  VoiceTypingTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests
+      - Shared
+    dependencies:
+      - target: VoiceTyping
