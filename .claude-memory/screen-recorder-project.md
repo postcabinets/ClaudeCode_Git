@@ -24,4 +24,9 @@ macOS専用のプロ向けスクリーンレコーダーを開発中。ScreenSag
 6. 3D + シネマ + DMGパッケージ
 
 ## 保存場所
-未確定（claude for me/ 内 or 別ディレクトリ）→ Phase 1開始時に決定
+`ScreenRecorder/` （このリポジトリ直下）
+
+## 現在の進捗（2026-03-27）
+- Phase 1 コード作成済み（App.swift, ContentView.swift, ScreenCaptureManager.swift, VideoWriter.swift, xcodeproj）
+- Xcodeライセンス同意済み
+- **次のステップ**: xcodebuildでビルドを通す → ビルドエラー修正 → 録画テスト → Phase 2へ

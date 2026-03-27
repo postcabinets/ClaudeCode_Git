@@ -42,3 +42,6 @@ Claude Code Agent Teamsによるタスク自動実行の仕組みと実装状況
 
 ## プロジェクト: VoiceTyping（Active）
 - [project_voicetyping.md](./project_voicetyping.md) — 無料音声入力アプリ（iOS/Android/Mac）。Task 1から実装開始
+
+## プロジェクト: リモートアクセス（構築済み・残タスクあり）
+- [project_remote_access.md](./project_remote_access.md) — スマホからTailscale+ttyd+PWAでClaude Codeにアクセス。launchd常駐稼働中
